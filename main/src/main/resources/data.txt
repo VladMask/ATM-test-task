@@ -1,0 +1,2 @@
+[card number] [password] [balance] [blocked or not]
+[«ХХХХ-ХХХХ-ХХХХ-ХХХХ»]
