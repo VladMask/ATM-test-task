@@ -10,7 +10,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Card {
-    private long number;
+    private String number;
     private String password;
     private BigDecimal balance;
+    private boolean isActive;
 }
