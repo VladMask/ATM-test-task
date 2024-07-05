@@ -34,11 +34,17 @@ public class CardRepositoryImpl implements CardRepository {
     }
 
     @Override
-    public Card findByCardNumber(String cardNumber) {
+    public Card findByCardNumber(String cardNumber) throws CardNotFoundException {
         Optional<Card> result = cardList.stream().filter(card -> card.getNumber().equals(cardNumber)).findFirst();
         if(result.isPresent())
             return result.get();
         else
             throw new CardNotFoundException("Card was not found", Map.of("card number",cardNumber));
     }
+
+    @Override
+    public List<Card> getAllCards() {
+        return this.cardList;
+    }
+
 }
