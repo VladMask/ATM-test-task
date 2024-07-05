@@ -39,7 +39,7 @@ public class CardRepositoryImpl implements CardRepository {
         if(result.isPresent())
             return result.get();
         else
-            throw new CardNotFoundException("Card was not found", Map.of("card number",cardNumber));
+            throw new CardNotFoundException("Error. Card was not found", Map.of("card number",cardNumber));
     }
 
     @Override
