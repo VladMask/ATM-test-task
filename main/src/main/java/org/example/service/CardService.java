@@ -22,7 +22,7 @@ public class CardService {
         return currentCard.getBalance();
     }
     public void withdraw(BigDecimal amount) throws IllegalAmountException {
-        if(currentCard.getBalance().compareTo(amount) >= 0) {
+        if(currentCard.getBalance().compareTo(amount) >= 0 && amount.compareTo(BigDecimal.ZERO) > 0) {
             currentCard.setBalance(currentCard.getBalance().subtract(amount));
             cardRepository.update(currentCard.getNumber(), currentCard);
         }
@@ -35,7 +35,7 @@ public class CardService {
     }
     public void deposit(BigDecimal amount) throws IllegalAmountException {
 
-        if(amount.compareTo(BigDecimal.valueOf(1_000_000)) < 0) {
+        if(amount.compareTo(BigDecimal.valueOf(1_000_000)) < 0 && amount.compareTo(BigDecimal.ZERO) > 0) {
             currentCard.setBalance(currentCard.getBalance().add(amount));
             cardRepository.update(currentCard.getNumber(), currentCard);
         }

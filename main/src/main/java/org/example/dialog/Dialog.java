@@ -123,6 +123,7 @@ public class Dialog {
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to withdraw");
             amount = scanner.nextBigDecimal();
+            scanner.skip("\n");
             try {
                 cardService.withdraw(amount);
                 System.out.println("Operation was performed successfully");
@@ -144,6 +145,7 @@ public class Dialog {
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to deposit");
             amount = scanner.nextBigDecimal();
+            scanner.skip("\n");
             try {
                 cardService.deposit(amount);
                 System.out.println("Operation was performed successfully");
