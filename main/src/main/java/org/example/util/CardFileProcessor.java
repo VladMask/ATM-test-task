@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,10 @@ public class CardFileProcessor {
                     .balance(new BigDecimal(args[2]))
                     .isActive(Boolean.parseBoolean(args[3]))
                     .build();
+            if(card.isActive())
+                card.setFreezeDate(null);
+            else
+                card.setFreezeDate(LocalDate.parse(args[4]));
             cardList.add(card);
         }
         reader.close();
@@ -41,7 +46,8 @@ public class CardFileProcessor {
             String line = c.getNumber() + " "
                     + c.getPassword() + " "
                     + c.getBalance() + " "
-                    + c.isActive() + "\n";
+                    + c.isActive() + " "
+                    + c.getFreezeDate() + "\n";
             writer.write(line);
         }
         writer.close();

@@ -5,6 +5,7 @@ import org.example.exception.CardNotFoundException;
 import org.example.repository.CardRepository;
 import org.example.util.CardFileProcessor;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +15,13 @@ public class CardRepositoryImpl implements CardRepository {
     private final List<Card> cardList;
     public CardRepositoryImpl(String fileName){
         this.cardList = CardFileProcessor.getAllCards(fileName);
+        LocalDate localDate = LocalDate.now();
+        for (Card c: cardList) {
+            if(!c.isActive()) {
+                if (localDate.minusDays(1).isAfter(c.getFreezeDate()))
+                    c.setActive(true);
+            }
+        }
     }
     @Override
     public void insert(Card entity) {
@@ -51,6 +59,7 @@ public class CardRepositoryImpl implements CardRepository {
     public void freezeCard(String cardNumber) {
         Card card = findByCardNumber(cardNumber);
         card.setActive(false);
+        card.setFreezeDate(LocalDate.now());
         update(cardNumber,card);
     }
 

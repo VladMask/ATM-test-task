@@ -71,6 +71,7 @@ public class Dialog {
                     }
                     else {
                         System.out.println("Sorry, your card is frozen");
+                        quit();
                     }
                 }
                 else{
