@@ -47,4 +47,16 @@ public class CardRepositoryImpl implements CardRepository {
         return this.cardList;
     }
 
+    @Override
+    public void freezeCard(String cardNumber) {
+        Card card = findByCardNumber(cardNumber);
+        card.setActive(false);
+        update(cardNumber,card);
+    }
+
+    @Override
+    public boolean containsCard(String cardNumber) {
+        return cardList.stream().anyMatch(card -> card.getNumber().equals(cardNumber));
+    }
+
 }

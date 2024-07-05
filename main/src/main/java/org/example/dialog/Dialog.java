@@ -1,7 +1,6 @@
 package org.example.dialog;
 
 import org.example.entity.Card;
-import org.example.exception.CardNotFoundException;
 import org.example.exception.IllegalAmountException;
 import org.example.repository.CardRepository;
 import org.example.repository.impl.CardRepositoryImpl;
@@ -16,87 +15,110 @@ public class Dialog {
     private final String dataFile = "main/src/main/resources/data.txt";
     private final CardService cardService;
     private final CardRepository cardRepository;
-
     private final Scanner scanner = new Scanner(System.in);
     public Dialog(){
         this.cardRepository = new CardRepositoryImpl(dataFile);
         this.cardService = new CardService(cardRepository);
     }
     public void start(){
-        authenticate();
+        runDialog();
     }
-    private void authenticate(){
-        byte attempts = 3;
-        System.out.println("enter the card number according to the template");
+
+    private String getCardNumberFromUser(){
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("Enter the card number according to the template");
         System.out.println("ХХХХ-ХХХХ-ХХХХ-ХХХХ");
-        while(true){
-            String password;
-            String cardNumber;
-            cardNumber = scanner.nextLine().trim();
+        return scanner.nextLine().trim();
+    }
+
+    private boolean isCardPresent(String cardNumber){
+        return cardRepository.containsCard(cardNumber);
+    }
+
+    private String getPasswordFromUser(){
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("Enter your password");
+        return scanner.nextLine().trim();
+    }
+
+    private boolean isCardNumberValid(String cardNumber){
+        return Pattern.matches("\\d{4}-\\d{4}-\\d{4}-\\d{4}", cardNumber);
+    }
+
+    private void runDialog(){
+        String cardNumber;
+        String password;
+        byte attempts = 3;
+        while (true){
+            cardNumber = getCardNumberFromUser();
             if(isCardNumberValid(cardNumber)){
-                System.out.println("Enter your password");
-                while (attempts > 0){
-                    password = scanner.nextLine().trim();
-                    attempts--;
-                    if(checkPermission(cardNumber,password)){
-                        cardService.setCurrentCard(cardRepository.findByCardNumber(cardNumber));
-                        showMenu();
+                if(isCardPresent(cardNumber)) {
+                    Card card = cardRepository.findByCardNumber(cardNumber);
+                    if(card.isActive()) {
+                        while (attempts > 0) {
+                            password = getPasswordFromUser();
+                            attempts--;
+                            if (password.equals(card.getPassword())) {
+                                cardService.setCurrentCard(card);
+                                showMenu();
+                            } else {
+                                System.out.printf("Wrong password. Attempts left: %s%n", attempts);
+                            }
+                        }
+                        System.out.println("Your card was frozen for 24 hours");
+                        cardRepository.freezeCard(cardNumber);
+                        quit();
                     }
                     else {
-                        System.out.printf("Wrong password. Attempts left: %s%n", attempts);
+                        System.out.println("Sorry, your card is frozen");
                     }
+                }
+                else{
+                    System.out.println("Error. Card was not found");
+                    System.out.println("Card number: " + cardNumber);
+                    System.out.println("Please try again\n");
                 }
 
             }
             else {
-                System.out.println("Invalid input of card number. Please follow the template\nХХХХ-ХХХХ-ХХХХ-ХХХХ");
+                System.out.println("Invalid input of card number.\n");
             }
         }
-    }
-    private boolean checkPermission(String cardNumber, String password){
-        Card card = null;
-        try {
-        card = cardRepository.findByCardNumber(cardNumber);
-        } catch (CardNotFoundException exception){
-            System.out.println(exception);
-        }
-        if(card != null)
-            return card.getPassword().equals(password);
-        return false;
-    }
-    private boolean isCardNumberValid(String cardNumber){
-        return Pattern.matches("\\d{4}-\\d{4}-\\d{4}-\\d{4}", cardNumber);
+
     }
     private void showMenu(){
-        byte choice;
+        String choice;
         do{
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             System.out.println("Enter 1 to check balance");
             System.out.println("Enter 2 to withdraw money");
             System.out.println("Enter 3 to deposit money");
             System.out.println("Enter 4 to quit");
-            choice = scanner.nextByte();
+            choice = scanner.nextLine();
             switch (choice) {
-                case 1 -> checkBalance();
-                case 2 -> withdraw();
-                case 3 -> deposit();
+                case "1" -> checkBalance();
+                case "2" -> withdraw();
+                case "3" -> deposit();
+                case "4" -> quit();
+                default -> System.out.println("Unknown command. Please, try again");
             }
         }
-        while (choice != 4);
-        quit();
+        while (true);
     }
     private void checkBalance(){
-        byte choice = -1;
-        while(choice != 0) {
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        String choice = "";
+        while(!choice.equals("0")) {
             System.out.println("Enter 0 to go back to menu\n");
             System.out.println("Current balance: " + cardService.checkBalance());
-            choice = scanner.nextByte();
+            choice = scanner.nextLine();
         }
     }
     private void withdraw(){
-        byte choice = -1;
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         BigDecimal amount;
-        while(choice != 0) {
-            System.out.println("Enter 0 to go back to menu\n");
+        String choice = "";
+        while(!choice.equals("0")) {
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to withdraw");
             amount = scanner.nextBigDecimal();
@@ -108,14 +130,16 @@ public class Dialog {
             catch (IllegalAmountException exception){
                 System.out.println(exception);
             }
-            choice = scanner.nextByte();
+            System.out.println("\nEnter 0 to go back to menu");
+            System.out.println("Enter 1 to to continue\n");
+            choice = scanner.nextLine();
         }
     }
     private void deposit(){
-        byte choice = -1;
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         BigDecimal amount;
-        while(choice != 0) {
-            System.out.println("Enter 0 to go back to menu\n");
+        String choice = "";
+        while(!choice.equals("0")) {
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to deposit");
             amount = scanner.nextBigDecimal();
@@ -127,11 +151,14 @@ public class Dialog {
             catch (IllegalAmountException exception){
                 System.out.println(exception);
             }
-            System.out.println("Enter 1 to go back to continue\n");
-            choice = scanner.nextByte();
+            System.out.println("\nEnter 0 to go back to menu");
+            System.out.println("Enter 1 to to continue\n");
+            choice = scanner.nextLine();
         }
     }
     private void quit(){
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("Application quit");
         CardFileProcessor.update(cardRepository.getAllCards(), dataFile);
         System.exit(0);
     }

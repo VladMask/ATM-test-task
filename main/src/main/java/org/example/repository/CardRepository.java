@@ -10,4 +10,6 @@ public interface CardRepository {
     void delete(Card entity);
     Card findByCardNumber(String cardNumber);
     List<Card> getAllCards();
+    void freezeCard(String cardNumber);
+    boolean containsCard(String cardNumber);
 }
