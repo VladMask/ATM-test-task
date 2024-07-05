@@ -7,24 +7,31 @@ import org.example.service.CardService;
 import java.math.BigDecimal;
 
 public class CardServiceImpl implements CardService {
-
+    private Card currentCard;
     private CardRepository cardRepository;
-
     public CardServiceImpl(CardRepository cardRepository){
         this.cardRepository = cardRepository;
     }
-    @Override
-    public BigDecimal checkBalance(String cardNumber) {
-        return cardRepository.findByCardNumber(cardNumber).getBalance();
+
+    public void setCurrentCard(Card currentCard) {
+        this.currentCard = currentCard;
     }
 
     @Override
-    public void withdraw() {
-        
+    public BigDecimal checkBalance() {
+        return currentCard.getBalance();
+    }
+
+    @Override
+    public void withdraw(BigDecimal amount) {
+        currentCard.setBalance(currentCard.getBalance().subtract(amount));
+        cardRepository.update(currentCard.getNumber(), currentCard);
     }
 
     @Override
     public void deposit(BigDecimal amount) {
-
+        currentCard.setBalance(currentCard.getBalance().add(amount));
+        cardRepository.update(currentCard.getNumber(), currentCard);
     }
+
 }

@@ -3,7 +3,7 @@ package org.example.service;
 import java.math.BigDecimal;
 
 public interface CardService {
-    BigDecimal checkBalance(String cardNumber);
-    void withdraw();
+    BigDecimal checkBalance();
+    void withdraw(BigDecimal amount);
     void deposit(BigDecimal amount);
 }
