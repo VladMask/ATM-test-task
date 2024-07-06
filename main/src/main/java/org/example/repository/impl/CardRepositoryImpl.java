@@ -6,6 +6,7 @@ import org.example.repository.CardRepository;
 import org.example.util.CardFileProcessor;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,8 +47,11 @@ public class CardRepositoryImpl implements CardRepository {
         Optional<Card> result = cardList.stream().filter(card -> card.getNumber().equals(cardNumber)).findFirst();
         if(result.isPresent())
             return result.get();
-        else
-            throw new CardNotFoundException("Error. Card was not found", Map.of("card number",cardNumber));
+        else {
+            Map<String, String> details = new HashMap<>();
+            details.put("card number", cardNumber);
+            throw new CardNotFoundException("Error. Card was not found", details);
+        }
     }
 
     @Override

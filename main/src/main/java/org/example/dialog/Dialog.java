@@ -8,6 +8,7 @@ import org.example.service.CardService;
 import org.example.util.CardFileProcessor;
 
 import java.math.BigDecimal;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -97,33 +98,49 @@ public class Dialog {
             System.out.println("Enter 4 to quit");
             choice = scanner.nextLine();
             switch (choice) {
-                case "1" -> checkBalance();
-                case "2" -> withdraw();
-                case "3" -> deposit();
-                case "4" -> quit();
-                default -> System.out.println("Unknown command. Please, try again");
+                case "1" :
+                    checkBalance();
+                    break;
+                case "2" :
+                    withdraw();
+                    break;
+                case "3" :
+                    deposit();
+                    break;
+                case "4" :
+                    quit();
+                    break;
+                default :
+                    System.out.println("Unknown command. Please, try again");
+                    break;
             }
         }
         while (true);
     }
     private void checkBalance(){
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         String choice = "";
         while(!choice.equals("0")) {
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             System.out.println("Enter 0 to go back to menu\n");
             System.out.println("Current balance: " + cardService.checkBalance());
             choice = scanner.nextLine();
         }
     }
     private void withdraw(){
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         BigDecimal amount;
         String choice = "";
         while(!choice.equals("0")) {
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to withdraw");
-            amount = scanner.nextBigDecimal();
-            scanner.skip("\n");
+            try {
+                String strAmount = scanner.nextLine();
+                amount = new BigDecimal(strAmount);
+            }
+            catch (NumberFormatException exception){
+                System.out.println("Please enter a number. Don't try to crash my program with letters");
+                continue;
+            }
             try {
                 cardService.withdraw(amount);
                 System.out.println("Operation was performed successfully");
@@ -133,19 +150,25 @@ public class Dialog {
                 System.out.println(exception);
             }
             System.out.println("\nEnter 0 to go back to menu");
-            System.out.println("Enter 1 to to continue\n");
+            System.out.println("Enter anything to to continue\n");
             choice = scanner.nextLine();
         }
     }
     private void deposit(){
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         BigDecimal amount;
         String choice = "";
         while(!choice.equals("0")) {
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to deposit");
-            amount = scanner.nextBigDecimal();
-            scanner.skip("\n");
+            try {
+                String strAmount = scanner.nextLine();
+                amount = new BigDecimal(strAmount);
+            }
+            catch (NumberFormatException exception){
+                System.out.println("Please enter a number. Don't try to crash my program with letters");
+                continue;
+            }
             try {
                 cardService.deposit(amount);
                 System.out.println("Operation was performed successfully");
@@ -155,7 +178,7 @@ public class Dialog {
                 System.out.println(exception);
             }
             System.out.println("\nEnter 0 to go back to menu");
-            System.out.println("Enter 1 to to continue\n");
+            System.out.println("Enter anything to to continue\n");
             choice = scanner.nextLine();
         }
     }

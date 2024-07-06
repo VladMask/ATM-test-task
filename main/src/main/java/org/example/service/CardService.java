@@ -5,6 +5,8 @@ import org.example.exception.IllegalAmountException;
 import org.example.repository.CardRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CardService {
@@ -26,11 +28,12 @@ public class CardService {
             currentCard.setBalance(currentCard.getBalance().subtract(amount));
             cardRepository.update(currentCard.getNumber(), currentCard);
         }
-        else
-            throw new IllegalAmountException("Error. Illegal amount was entered", Map.of(
-                    "Balance",currentCard.getBalance().toString(),
-                    "Amount to withdraw", amount.toString()
-            ));
+        else {
+            Map<String, String> details = new HashMap<>();
+            details.put("Balance",currentCard.getBalance().toString());
+            details.put("Amount to withdraw", amount.toString());
+            throw new IllegalAmountException("Error. Illegal amount was entered", details);
+        }
 
     }
     public void deposit(BigDecimal amount) throws IllegalAmountException {
@@ -39,10 +42,11 @@ public class CardService {
             currentCard.setBalance(currentCard.getBalance().add(amount));
             cardRepository.update(currentCard.getNumber(), currentCard);
         }
-        else
-            throw new IllegalAmountException("Error. Illegal amount was entered", Map.of(
-                    "Balance",currentCard.getBalance().toString(),
-                    "Amount to deposit", amount.toString()
-            ));
+        else{
+            Map<String, String> details = new HashMap<>();
+            details.put("Balance",currentCard.getBalance().toString());
+            details.put("Amount to deposit", amount.toString());
+            throw new IllegalAmountException("Error. Illegal amount was entered", details);
+        }
     }
 }
