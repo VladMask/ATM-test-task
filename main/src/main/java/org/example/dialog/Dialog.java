@@ -46,6 +46,27 @@ public class Dialog {
         return Pattern.matches("\\d{4}-\\d{4}-\\d{4}-\\d{4}", cardNumber);
     }
 
+    private boolean isAmountValid(String strAmount){
+        if(strAmount.contains(".") || strAmount.contains(","))
+            return Pattern.matches("\\d+[.,]\\d{2}", strAmount);
+        return true;
+    }
+
+    private BigDecimal getAmountFromUser(){
+        try {
+            String strAmount = scanner.nextLine();
+            if(!isAmountValid(strAmount)) {
+                System.out.println("Please enter a number with only 2 digits after the point");
+                return null;
+            }
+            return new BigDecimal(strAmount);
+        }
+        catch (NumberFormatException exception){
+            System.out.println("Please enter a number or use '.' as a separator");
+            return null;
+        }
+    }
+
     private void runDialog(){
         String cardNumber;
         String password;
@@ -133,14 +154,9 @@ public class Dialog {
             System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to withdraw");
-            try {
-                String strAmount = scanner.nextLine();
-                amount = new BigDecimal(strAmount);
-            }
-            catch (NumberFormatException exception){
-                System.out.println("Please enter a number. Don't try to crash my program with letters");
+            amount = getAmountFromUser();
+            if(amount == null)
                 continue;
-            }
             try {
                 cardService.withdraw(amount);
                 System.out.println("Operation was performed successfully");
@@ -161,14 +177,9 @@ public class Dialog {
             System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to deposit");
-            try {
-                String strAmount = scanner.nextLine();
-                amount = new BigDecimal(strAmount);
-            }
-            catch (NumberFormatException exception){
-                System.out.println("Please enter a number. Don't try to crash my program with letters");
+            amount = getAmountFromUser();
+            if(amount == null)
                 continue;
-            }
             try {
                 cardService.deposit(amount);
                 System.out.println("Operation was performed successfully");
