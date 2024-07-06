@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @UtilityClass
-public class CardFileProcessor {
+public class ATMFilesProcessor {
 
     @SneakyThrows
     public static List<Card> getAllCards(String fileName){
@@ -40,7 +40,7 @@ public class CardFileProcessor {
     }
 
     @SneakyThrows
-    public static void update(List<Card> cards, String fileName){
+    public static void updateCards(List<Card> cards, String fileName){
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
         for (Card c: cards) {
             String line = c.getNumber() + " "
@@ -52,4 +52,21 @@ public class CardFileProcessor {
         }
         writer.close();
     }
+
+    @SneakyThrows
+    public static BigDecimal getMoneyResource(String fileName){
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        String strAmount = reader.readLine();
+        reader.close();
+        return new BigDecimal(strAmount);
+    }
+
+    @SneakyThrows
+    public static void updateMoneyResource(String fileName, BigDecimal amount){
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        writer.write(amount.toString());
+        writer.close();
+    }
+
+
 }

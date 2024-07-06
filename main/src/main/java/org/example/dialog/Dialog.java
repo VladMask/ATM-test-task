@@ -5,21 +5,24 @@ import org.example.exception.IllegalAmountException;
 import org.example.repository.CardRepository;
 import org.example.repository.impl.CardRepositoryImpl;
 import org.example.service.CardService;
-import org.example.util.CardFileProcessor;
+import org.example.util.ATMFilesProcessor;
 
 import java.math.BigDecimal;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Dialog {
+
+    private BigDecimal moneyResource;
     private final String dataFile = "main/src/main/resources/data.txt";
+    private final String atmResourceFile = "main/src/main/resources/ATM-money-resource.txt";
     private final CardService cardService;
     private final CardRepository cardRepository;
     private final Scanner scanner = new Scanner(System.in);
     public Dialog(){
         this.cardRepository = new CardRepositoryImpl(dataFile);
         this.cardService = new CardService(cardRepository);
+        this.moneyResource = ATMFilesProcessor.getMoneyResource(atmResourceFile);
     }
     public void start(){
         runDialog();
@@ -155,19 +158,24 @@ public class Dialog {
             System.out.println("Current balance: " + cardService.checkBalance());
             System.out.println("Enter amount of money you want to withdraw");
             amount = getAmountFromUser();
-            if(amount == null)
-                continue;
-            try {
-                cardService.withdraw(amount);
-                System.out.println("Operation was performed successfully");
-                System.out.println("Current balance: " + cardService.checkBalance());
+            if(amount != null) {
+                if(amount.compareTo(moneyResource) < 0) {
+                    try {
+                        cardService.withdraw(amount);
+                        this.moneyResource = moneyResource.subtract(amount);
+                        System.out.println("Operation was performed successfully");
+                        System.out.println("Current balance: " + cardService.checkBalance());
+                    } catch (IllegalAmountException exception) {
+                        System.out.println(exception);
+                    }
+                    System.out.println("\nEnter 0 to go back to menu");
+                    System.out.println("Enter anything to to continue\n");
+                    choice = scanner.nextLine();
+                }
+                else {
+                    System.out.printf("Sorry, you cant withdraw more than %s%n", moneyResource);
+                }
             }
-            catch (IllegalAmountException exception){
-                System.out.println(exception);
-            }
-            System.out.println("\nEnter 0 to go back to menu");
-            System.out.println("Enter anything to to continue\n");
-            choice = scanner.nextLine();
         }
     }
     private void deposit(){
@@ -182,6 +190,7 @@ public class Dialog {
                 continue;
             try {
                 cardService.deposit(amount);
+                this.moneyResource = moneyResource.add(amount);
                 System.out.println("Operation was performed successfully");
                 System.out.println("Current balance: " + cardService.checkBalance());
             }
@@ -196,7 +205,8 @@ public class Dialog {
     private void quit(){
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         System.out.println("Application quit");
-        CardFileProcessor.update(cardRepository.getAllCards(), dataFile);
+        ATMFilesProcessor.updateCards(cardRepository.getAllCards(), dataFile);
+        ATMFilesProcessor.updateMoneyResource(atmResourceFile, moneyResource);
         System.exit(0);
     }
 }

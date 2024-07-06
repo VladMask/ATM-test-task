@@ -3,7 +3,7 @@ package org.example.repository.impl;
 import org.example.entity.Card;
 import org.example.exception.CardNotFoundException;
 import org.example.repository.CardRepository;
-import org.example.util.CardFileProcessor;
+import org.example.util.ATMFilesProcessor;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class CardRepositoryImpl implements CardRepository {
 
     private final List<Card> cardList;
     public CardRepositoryImpl(String fileName){
-        this.cardList = CardFileProcessor.getAllCards(fileName);
+        this.cardList = ATMFilesProcessor.getAllCards(fileName);
         LocalDate localDate = LocalDate.now();
         for (Card c: cardList) {
             if(!c.isActive()) {
