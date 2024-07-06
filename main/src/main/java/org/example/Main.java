@@ -1,10 +1,10 @@
 package org.example;
 
-import org.example.dialog.Dialog;
+import org.example.controller.ATMController;
 
 public class Main {
     public static void main(String[] args) {
-        Dialog dialog = new Dialog();
+        ATMController dialog = new ATMController();
         dialog.start();
     }
 }

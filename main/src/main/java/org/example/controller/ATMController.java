@@ -1,28 +1,30 @@
-package org.example.dialog;
+package org.example.controller;
 
+import org.example.entity.ATM;
 import org.example.entity.Card;
 import org.example.exception.IllegalAmountException;
 import org.example.repository.CardRepository;
 import org.example.repository.impl.CardRepositoryImpl;
 import org.example.service.CardService;
-import org.example.util.ATMFilesProcessor;
+import org.example.service.impl.CardServiceImpl;
+import org.example.util.ATMFileProcessor;
+import org.example.util.CardFileProcessor;
+import org.example.util.StringConstants;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-public class Dialog {
+public class ATMController {
 
-    private BigDecimal moneyResource;
-    private final String dataFile = "main/src/main/resources/data.txt";
-    private final String atmResourceFile = "main/src/main/resources/ATM-money-resource.txt";
+    private final ATM atm;
     private final CardService cardService;
     private final CardRepository cardRepository;
     private final Scanner scanner = new Scanner(System.in);
-    public Dialog(){
-        this.cardRepository = new CardRepositoryImpl(dataFile);
-        this.cardService = new CardService(cardRepository);
-        this.moneyResource = ATMFilesProcessor.getMoneyResource(atmResourceFile);
+    public ATMController(){
+        this.cardRepository = new CardRepositoryImpl();
+        this.cardService = new CardServiceImpl(cardRepository);
+        this.atm = new ATM();
     }
     public void start(){
         runDialog();
@@ -50,14 +52,16 @@ public class Dialog {
     }
 
     private boolean isAmountValid(String strAmount){
-        if(strAmount.contains(".") || strAmount.contains(","))
-            return Pattern.matches("\\d+[.,]\\d{2}", strAmount);
+        if(strAmount.contains("."))
+            return Pattern.matches("\\d+[.]\\d{2}", strAmount);
         return true;
     }
 
     private BigDecimal getAmountFromUser(){
         try {
             String strAmount = scanner.nextLine();
+            if(strAmount.contains(","))
+                strAmount = strAmount.replace(",", ".");
             if(!isAmountValid(strAmount)) {
                 System.out.println("Please enter a number with only 2 digits after the point");
                 return null;
@@ -65,7 +69,7 @@ public class Dialog {
             return new BigDecimal(strAmount);
         }
         catch (NumberFormatException exception){
-            System.out.println("Please enter a number or use '.' as a separator");
+            System.out.println("Please enter a number.");
             return null;
         }
     }
@@ -159,10 +163,10 @@ public class Dialog {
             System.out.println("Enter amount of money you want to withdraw");
             amount = getAmountFromUser();
             if(amount != null) {
-                if(amount.compareTo(moneyResource) < 0) {
+                if(amount.compareTo(atm.getMoneyResource()) < 0) {
                     try {
                         cardService.withdraw(amount);
-                        this.moneyResource = moneyResource.subtract(amount);
+                        this.atm.withdraw(amount);
                         System.out.println("Operation was performed successfully");
                         System.out.println("Current balance: " + cardService.checkBalance());
                     } catch (IllegalAmountException exception) {
@@ -173,7 +177,7 @@ public class Dialog {
                     choice = scanner.nextLine();
                 }
                 else {
-                    System.out.printf("Sorry, you cant withdraw more than %s%n", moneyResource);
+                    System.out.printf("Sorry, you cant withdraw more than %s%n", atm.getMoneyResource());
                 }
             }
         }
@@ -190,7 +194,7 @@ public class Dialog {
                 continue;
             try {
                 cardService.deposit(amount);
-                this.moneyResource = moneyResource.add(amount);
+                this.atm.deposit(amount);
                 System.out.println("Operation was performed successfully");
                 System.out.println("Current balance: " + cardService.checkBalance());
             }
@@ -205,8 +209,8 @@ public class Dialog {
     private void quit(){
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         System.out.println("Application quit");
-        ATMFilesProcessor.updateCards(cardRepository.getAllCards(), dataFile);
-        ATMFilesProcessor.updateMoneyResource(atmResourceFile, moneyResource);
+        CardFileProcessor.updateCards(cardRepository.getAllCards(), StringConstants.CARDS_FILE_PATH);
+        ATMFileProcessor.updateMoneyResource(atm.getMoneyResource(), StringConstants.ATM_MONEY_RECOURSE_FILE_PATH);
         System.exit(0);
     }
 }
