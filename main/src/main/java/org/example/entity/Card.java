@@ -3,7 +3,7 @@ package org.example.entity;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,5 +15,5 @@ public class Card {
     private String password;
     private BigDecimal balance;
     private boolean isActive;
-    private LocalDate freezeDate;
+    private LocalDateTime freezeDate;
 }

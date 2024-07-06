@@ -11,5 +11,6 @@ public interface CardRepository {
     Card findByCardNumber(String cardNumber);
     List<Card> getAllCards();
     void freezeCard(String cardNumber);
+    void defrostCard(String cardNumber);
     boolean containsCard(String cardNumber);
 }

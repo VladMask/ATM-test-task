@@ -7,6 +7,7 @@ import org.example.util.CardFileProcessor;
 import org.example.util.StringConstants;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +22,6 @@ public class CardRepositoryImpl implements CardRepository {
     private final List<Card> cardList;
     public CardRepositoryImpl(){
         this.cardList = CardFileProcessor.getAllCards(StringConstants.CARDS_FILE_PATH);
-        LocalDate localDate = LocalDate.now();
-        for (Card c: cardList) {
-            if(!c.isActive()) {
-                if (localDate.minusDays(1).isAfter(c.getFreezeDate()))
-                    c.setActive(true);
-            }
-        }
     }
     @Override
     public void insert(Card entity) {
@@ -68,7 +62,15 @@ public class CardRepositoryImpl implements CardRepository {
     public void freezeCard(String cardNumber) {
         Card card = findByCardNumber(cardNumber);
         card.setActive(false);
-        card.setFreezeDate(LocalDate.now());
+        card.setFreezeDate(LocalDateTime.now());
+        update(cardNumber,card);
+    }
+
+    @Override
+    public void defrostCard(String cardNumber) {
+        Card card = findByCardNumber(cardNumber);
+        card.setActive(true);
+        card.setFreezeDate(null);
         update(cardNumber,card);
     }
 

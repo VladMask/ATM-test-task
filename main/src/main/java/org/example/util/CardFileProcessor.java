@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class CardFileProcessor {
             if(card.isActive())
                 card.setFreezeDate(null);
             else
-                card.setFreezeDate(LocalDate.parse(args[4]));
+                card.setFreezeDate(LocalDateTime.parse(args[4]));
             cardList.add(card);
         }
         reader.close();

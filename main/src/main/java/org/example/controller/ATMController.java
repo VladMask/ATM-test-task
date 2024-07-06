@@ -12,6 +12,8 @@ import org.example.util.CardFileProcessor;
 import org.example.util.StringConstants;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -36,27 +38,28 @@ public class ATMController {
         System.out.println("ХХХХ-ХХХХ-ХХХХ-ХХХХ");
         return scanner.nextLine().trim();
     }
-
+    private boolean isCardNumberValid(String cardNumber){
+        return Pattern.matches("\\d{4}-\\d{4}-\\d{4}-\\d{4}", cardNumber);
+    }
     private boolean isCardPresent(String cardNumber){
         return cardRepository.containsCard(cardNumber);
     }
-
+    private boolean isCardFrozen(Card card){
+        LocalDateTime dateTime = LocalDateTime.now();
+        if(!card.isActive()) {
+            if (dateTime.minusHours(24).isAfter(card.getFreezeDate())) {
+                cardRepository.defrostCard(card.getNumber());
+            }
+            else
+                return false;
+        }
+        return true;
+    }
     private String getPasswordFromUser(){
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         System.out.println("Enter your password");
         return scanner.nextLine().trim();
     }
-
-    private boolean isCardNumberValid(String cardNumber){
-        return Pattern.matches("\\d{4}-\\d{4}-\\d{4}-\\d{4}", cardNumber);
-    }
-
-    private boolean isAmountValid(String strAmount){
-        if(strAmount.contains("."))
-            return Pattern.matches("\\d+[.]\\d{2}", strAmount);
-        return true;
-    }
-
     private BigDecimal getAmountFromUser(){
         try {
             String strAmount = scanner.nextLine();
@@ -73,6 +76,11 @@ public class ATMController {
             return null;
         }
     }
+    private boolean isAmountValid(String strAmount){
+        if(strAmount.contains("."))
+            return Pattern.matches("\\d+[.]\\d{2}", strAmount);
+        return true;
+    }
 
     private void runDialog(){
         String cardNumber;
@@ -83,7 +91,7 @@ public class ATMController {
             if(isCardNumberValid(cardNumber)){
                 if(isCardPresent(cardNumber)) {
                     Card card = cardRepository.findByCardNumber(cardNumber);
-                    if(card.isActive()) {
+                    if(isCardFrozen(card)) {
                         while (attempts > 0) {
                             password = getPasswordFromUser();
                             attempts--;
