@@ -6,7 +6,6 @@ import org.example.repository.CardRepository;
 import org.example.util.CardFileProcessor;
 import org.example.util.StringConstants;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +14,20 @@ import java.util.Optional;
 
 public class CardRepositoryImpl implements CardRepository {
 
-
-    //todo
-    //SINGLETON
-    //private final CardRepositoryImpl cardRepository;
     private final List<Card> cardList;
-    public CardRepositoryImpl(){
+    private static volatile CardRepositoryImpl instance = null;
+    private static final Object mutex = new Object();
+
+    private CardRepositoryImpl() {
         this.cardList = CardFileProcessor.getAllCards(StringConstants.CARDS_FILE_PATH);
+    }
+    public static CardRepositoryImpl getInstance() {
+        if (instance == null) {
+            synchronized (mutex) {
+                instance =  new CardRepositoryImpl();
+            }
+        }
+        return instance;
     }
     @Override
     public void insert(Card entity) {

@@ -12,7 +12,6 @@ import org.example.util.CardFileProcessor;
 import org.example.util.StringConstants;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -24,7 +23,7 @@ public class ATMController {
     private final CardRepository cardRepository;
     private final Scanner scanner = new Scanner(System.in);
     public ATMController(){
-        this.cardRepository = new CardRepositoryImpl();
+        this.cardRepository = CardRepositoryImpl.getInstance();
         this.cardService = new CardServiceImpl(cardRepository);
         this.atm = new ATM();
     }
