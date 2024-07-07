@@ -7,19 +7,16 @@ import org.example.util.CardFileProcessor;
 import org.example.util.StringConstants;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class CardRepositoryImpl implements CardRepository {
 
-    private final List<Card> cardList;
+    private final Map<String, Card> cards;
     private static volatile CardRepositoryImpl instance = null;
     private static final Object mutex = new Object();
 
     private CardRepositoryImpl() {
-        this.cardList = CardFileProcessor.getAllCards(StringConstants.CARDS_FILE_PATH);
+        this.cards = CardFileProcessor.getAllCards(StringConstants.CARDS_FILE_PATH);
     }
     public static CardRepositoryImpl getInstance() {
         if (instance == null) {
@@ -31,27 +28,23 @@ public class CardRepositoryImpl implements CardRepository {
     }
     @Override
     public void insert(Card entity) {
-        cardList.add(entity);
+        cards.put(entity.getNumber(), entity);
     }
 
     @Override
     public void update(String cardNumber, Card entity) {
-        int index = cardList.indexOf(
-                cardList.stream().filter(card -> card.getNumber().equals(cardNumber)).findFirst().get()
-        );
-        cardList.set(index, entity);
+        cards.replace(cardNumber, entity);
     }
 
     @Override
     public void delete(Card entity) {
-        cardList.remove(entity);
+        cards.remove(entity.getNumber());
     }
 
     @Override
     public Card findByCardNumber(String cardNumber) throws CardNotFoundException {
-        Optional<Card> result = cardList.stream().filter(card -> card.getNumber().equals(cardNumber)).findFirst();
-        if(result.isPresent())
-            return result.get();
+        if(cards.containsKey(cardNumber))
+            return cards.get(cardNumber);
         else {
             Map<String, String> details = new HashMap<>();
             details.put("card number", cardNumber);
@@ -61,7 +54,7 @@ public class CardRepositoryImpl implements CardRepository {
 
     @Override
     public List<Card> getAllCards() {
-        return this.cardList;
+        return new ArrayList<>(cards.values());
     }
 
     @Override
@@ -82,7 +75,7 @@ public class CardRepositoryImpl implements CardRepository {
 
     @Override
     public boolean containsCard(String cardNumber) {
-        return cardList.stream().anyMatch(card -> card.getNumber().equals(cardNumber));
+        return cards.containsKey(cardNumber);
     }
 
 }

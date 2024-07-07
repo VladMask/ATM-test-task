@@ -9,16 +9,16 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @UtilityClass
 public class CardFileProcessor {
     @SneakyThrows
-    public static List<Card> getAllCards(String fileName){
-        List<Card> cardList = new ArrayList<>();
+    public static Map<String, Card> getAllCards(String fileName){
+        Map<String, Card> cards = new HashMap<>();
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line;
         while ((line = reader.readLine()) != null){
@@ -33,10 +33,10 @@ public class CardFileProcessor {
                 card.setFreezeDate(null);
             else
                 card.setFreezeDate(LocalDateTime.parse(args[4]));
-            cardList.add(card);
+            cards.put(card.getNumber(),card);
         }
         reader.close();
-        return cardList;
+        return cards;
     }
 
     @SneakyThrows

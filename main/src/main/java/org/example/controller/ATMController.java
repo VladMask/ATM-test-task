@@ -156,8 +156,8 @@ public class ATMController {
         String choice = "";
         while(!choice.equals("0")) {
             System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-            System.out.println("Enter 0 to go back to menu\n");
             System.out.println("Current balance: " + cardService.checkBalance());
+            System.out.println("\nEnter 0 to go back to menu");
             choice = scanner.nextLine();
         }
     }

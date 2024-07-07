@@ -15,7 +15,6 @@ public class CardServiceImpl implements CardService {
     public CardServiceImpl(CardRepository cardRepository){
         this.cardRepository = cardRepository;
     }
-
     @Override
     public void setCurrentCard(Card currentCard) {
         this.currentCard = currentCard;
