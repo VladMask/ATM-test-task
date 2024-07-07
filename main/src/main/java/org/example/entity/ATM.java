@@ -8,8 +8,6 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@Builder
 public class ATM {
     private BigDecimal moneyResource;
     public void withdraw(BigDecimal amount){

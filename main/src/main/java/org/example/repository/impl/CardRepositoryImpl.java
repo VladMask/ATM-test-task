@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class CardRepositoryImpl implements CardRepository {
-
     private final Map<String, Card> cards;
     private static volatile CardRepositoryImpl instance = null;
     private static final Object mutex = new Object();
@@ -48,7 +47,9 @@ public class CardRepositoryImpl implements CardRepository {
         else {
             Map<String, String> details = new HashMap<>();
             details.put("card number", cardNumber);
-            throw new CardNotFoundException("Error. Card was not found", details);
+            throw new CardNotFoundException(
+                    CardNotFoundException.class.getSimpleName() + ": Card with specified number wasn't found"
+                    , details);
         }
     }
 
@@ -71,11 +72,6 @@ public class CardRepositoryImpl implements CardRepository {
         card.setActive(true);
         card.setFreezeDate(null);
         update(cardNumber,card);
-    }
-
-    @Override
-    public boolean containsCard(String cardNumber) {
-        return cards.containsKey(cardNumber);
     }
 
 }

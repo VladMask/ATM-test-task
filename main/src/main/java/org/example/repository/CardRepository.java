@@ -12,5 +12,4 @@ public interface CardRepository {
     List<Card> getAllCards();
     void freezeCard(String cardNumber);
     void defrostCard(String cardNumber);
-    boolean containsCard(String cardNumber);
 }

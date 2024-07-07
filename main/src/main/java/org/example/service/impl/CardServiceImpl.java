@@ -34,7 +34,11 @@ public class CardServiceImpl implements CardService {
             Map<String, String> details = new HashMap<>();
             details.put("Balance",currentCard.getBalance().toString());
             details.put("Amount to withdraw", amount.toString());
-            throw new IllegalAmountException("Error. Illegal amount was entered", details);
+            throw new IllegalAmountException(
+                    IllegalAmountException.class.getSimpleName() + ": You can't withdraw 0 " +
+                            "or amount that bigger than your balance"
+                    ,details
+            );
         }
 
     }
@@ -47,9 +51,11 @@ public class CardServiceImpl implements CardService {
         }
         else{
             Map<String, String> details = new HashMap<>();
-            details.put("Balance",currentCard.getBalance().toString());
             details.put("Amount to deposit", amount.toString());
-            throw new IllegalAmountException("Error. Illegal amount was entered", details);
+            throw new IllegalAmountException(
+                    IllegalAmountException.class.getSimpleName() + ": You can't deposit more than 1 000 000"
+                    ,details
+            );
         }
     }
 }

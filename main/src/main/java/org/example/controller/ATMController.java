@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.entity.ATM;
 import org.example.entity.Card;
+import org.example.exception.CardNotFoundException;
 import org.example.exception.IllegalAmountException;
 import org.example.repository.CardRepository;
 import org.example.repository.impl.CardRepositoryImpl;
@@ -39,9 +40,6 @@ public class ATMController {
     }
     private boolean isCardNumberValid(String cardNumber){
         return Pattern.matches("\\d{4}-\\d{4}-\\d{4}-\\d{4}", cardNumber);
-    }
-    private boolean isCardPresent(String cardNumber){
-        return cardRepository.containsCard(cardNumber);
     }
     private boolean isCardFrozen(Card card){
         LocalDateTime dateTime = LocalDateTime.now();
@@ -88,34 +86,33 @@ public class ATMController {
         while (true){
             cardNumber = getCardNumberFromUser();
             if(isCardNumberValid(cardNumber)){
-                if(isCardPresent(cardNumber)) {
-                    Card card = cardRepository.findByCardNumber(cardNumber);
-                    if(isCardFrozen(card)) {
-                        while (attempts > 0) {
-                            password = getPasswordFromUser();
-                            attempts--;
-                            if (password.equals(card.getPassword())) {
-                                cardService.setCurrentCard(card);
-                                showMenu();
-                            } else {
-                                System.out.printf("Wrong password. Attempts left: %s%n", attempts);
-                            }
+                Card card;
+                try{
+                    card = cardRepository.findByCardNumber(cardNumber);
+                }
+                catch (CardNotFoundException exception){
+                    System.out.println(exception);
+                    continue;
+                }
+                if(isCardFrozen(card)) {
+                    while (attempts > 0) {
+                        password = getPasswordFromUser();
+                        attempts--;
+                        if (password.equals(card.getPassword())) {
+                            cardService.setCurrentCard(card);
+                            showMenu();
+                        } else {
+                            System.out.printf("Wrong password. Attempts left: %s%n", attempts);
                         }
-                        System.out.println("Your card was frozen for 24 hours");
-                        cardRepository.freezeCard(cardNumber);
-                        quit();
                     }
-                    else {
-                        System.out.println("Sorry, your card is frozen");
-                        quit();
-                    }
+                    System.out.println("Your card was frozen for 24 hours");
+                    cardRepository.freezeCard(cardNumber);
+                    quit();
                 }
-                else{
-                    System.out.println("Error. Card was not found");
-                    System.out.println("Card number: " + cardNumber);
-                    System.out.println("Please try again\n");
+                else {
+                    System.out.println("Sorry, your card is frozen");
+                    quit();
                 }
-
             }
             else {
                 System.out.println("Invalid input of card number.\n");
